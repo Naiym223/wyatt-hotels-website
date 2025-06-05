@@ -1,17 +1,23 @@
 'use client';
 import { motion, useInView, useSpring, useTransform } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
-import { Users, Star, Building, Trophy, Clock, Globe } from 'lucide-react';
+import { Users, Star, Building, Trophy, Clock, Globe, LucideIcon } from 'lucide-react';
 
-const AnimatedCounter = ({ value, suffix = '', duration = 2 }) => {
+interface AnimatedCounterProps {
+  value: number;
+  suffix?: string;
+  duration?: number;
+}
+
+const AnimatedCounter = ({ value, suffix = '', duration = 2 }: AnimatedCounterProps) => {
   const [count, setCount] = useState(0);
-  const ref = useRef(null);
+  const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
 
   useEffect(() => {
     if (isInView) {
-      let startTime = null;
-      const animate = (currentTime) => {
+      let startTime: number | null = null;
+      const animate = (currentTime: number) => {
         if (startTime === null) startTime = currentTime;
         const progress = Math.min((currentTime - startTime) / (duration * 1000), 1);
         
@@ -32,7 +38,16 @@ const AnimatedCounter = ({ value, suffix = '', duration = 2 }) => {
   );
 };
 
-const StatCard = ({ icon: Icon, value, suffix, label, delay = 0, description }) => (
+interface StatCardProps {
+  icon: LucideIcon;
+  value: number;
+  suffix?: string;
+  label: string;
+  delay?: number;
+  description: string;
+}
+
+const StatCard = ({ icon: Icon, value, suffix, label, delay = 0, description }: StatCardProps) => (
   <motion.div
     initial={{ opacity: 0, y: 50, scale: 0.9 }}
     whileInView={{ opacity: 1, y: 0, scale: 1 }}
@@ -105,7 +120,7 @@ const StatCard = ({ icon: Icon, value, suffix, label, delay = 0, description }) 
 );
 
 export default function StatsSection() {
-  const ref = useRef(null);
+  const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true });
 
   return (

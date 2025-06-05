@@ -1,11 +1,19 @@
 'use client';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Star, Sparkles, Crown, Hotel, Users, Award, Zap } from 'lucide-react';
+import { ArrowRight, Star, Sparkles, Crown, Hotel, Users, Award, Zap, LucideIcon } from 'lucide-react';
 import Image from 'next/image';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, ReactNode } from 'react';
 
-const FloatingShape = ({ delay = 0, duration = 6, size = 'w-16 h-16', position = '', children }: any) => (
+interface FloatingShapeProps {
+  delay?: number;
+  duration?: number;
+  size?: string;
+  position?: string;
+  children: ReactNode;
+}
+
+const FloatingShape = ({ delay = 0, duration = 6, size = 'w-16 h-16', position = '', children }: FloatingShapeProps) => (
   <motion.div
     className={`absolute ${size} ${position} flex items-center justify-center`}
     animate={{
@@ -25,7 +33,14 @@ const FloatingShape = ({ delay = 0, duration = 6, size = 'w-16 h-16', position =
   </motion.div>
 );
 
-const AnimatedIcon = ({ Icon, delay = 0, position = '', color = 'text-white/40' }: any) => (
+interface AnimatedIconProps {
+  Icon: LucideIcon;
+  delay?: number;
+  position?: string;
+  color?: string;
+}
+
+const AnimatedIcon = ({ Icon, delay = 0, position = '', color = 'text-white/40' }: AnimatedIconProps) => (
   <motion.div
     className={`absolute ${position} ${color}`}
     initial={{ opacity: 0, scale: 0 }}

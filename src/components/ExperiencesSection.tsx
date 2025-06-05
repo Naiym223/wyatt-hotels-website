@@ -11,8 +11,23 @@ import {
   ClipboardCheck, 
   ArrowRight,
   Star,
-  Play
+  Play,
+  LucideIcon
 } from 'lucide-react';
+import Image from 'next/image';
+
+// Type definitions
+interface ExperienceCardProps {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  features: string[];
+  isMain?: boolean;
+  delay?: number;
+  gradient?: string;
+  thumbnail?: string;
+  gameUrl?: string;
+}
 
 const ExperienceCard = ({ 
   icon: Icon, 
@@ -21,10 +36,18 @@ const ExperienceCard = ({
   features, 
   isMain = false, 
   delay = 0,
-  gradient = "from-blue-500 to-cyan-400"
-}) => {
-  const ref = useRef(null);
+  gradient = "from-blue-500 to-cyan-400",
+  thumbnail,
+  gameUrl
+}: ExperienceCardProps) => {
+  const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  const handlePlayClick = () => {
+    if (gameUrl) {
+      window.open(gameUrl, '_blank');
+    }
+  };
 
   return (
     <motion.div
@@ -46,99 +69,134 @@ const ExperienceCard = ({
           ? 'bg-gradient-to-br from-blue-600 to-cyan-500 text-white' 
           : 'bg-white'
       }`}>
-        <CardContent className="p-8 relative">
-          {/* Background decoration for main card */}
-          {isMain && (
-            <div className="absolute inset-0 opacity-20">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-                className="absolute -top-10 -right-10 w-40 h-40 bg-white/30 rounded-full blur-xl"
+        <CardContent className="p-0 relative">
+          {/* Thumbnail Section */}
+          {thumbnail && (
+            <div className="relative h-48 overflow-hidden">
+              <Image
+                src={thumbnail}
+                alt={`${title} thumbnail`}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-110"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
-              <motion.div
-                animate={{ rotate: -360 }}
-                transition={{ duration: 25, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-                className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/20 rounded-full blur-xl"
-              />
+              <div className={`absolute inset-0 ${
+                isMain 
+                  ? 'bg-gradient-to-t from-blue-600/80 to-transparent' 
+                  : 'bg-gradient-to-t from-black/50 to-transparent'
+              }`} />
+              
+              {/* Overlay content on thumbnail */}
+              {isMain && (
+                <div className="absolute top-4 right-4">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={isInView ? { scale: 1 } : {}}
+                    transition={{ duration: 0.5, delay: delay + 0.3 }}
+                    className="flex items-center space-x-1 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1"
+                  >
+                    <Star className="w-4 h-4 text-yellow-300 fill-current" />
+                    <span className="text-sm font-medium text-white">Featured</span>
+                  </motion.div>
+                </div>
+              )}
             </div>
           )}
 
-          <div className="relative z-10">
-            {/* Header */}
-            <div className="flex items-start justify-between mb-6">
-              <motion.div
-                whileHover={{ scale: 1.2, rotate: 10 }}
-                className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
-                  isMain 
-                    ? 'bg-white/20 text-white' 
-                    : `bg-gradient-to-br ${gradient} text-white`
-                } group-hover:shadow-lg transition-all duration-300`}
-              >
-                <Icon className="w-8 h-8" />
-              </motion.div>
-              
-              {isMain && (
+          <div className="p-8 relative">
+            {/* Background decoration for main card */}
+            {isMain && (
+              <div className="absolute inset-0 opacity-20">
                 <motion.div
-                  initial={{ scale: 0 }}
-                  animate={isInView ? { scale: 1 } : {}}
-                  transition={{ duration: 0.5, delay: delay + 0.3 }}
-                  className="flex items-center space-x-1 bg-white/20 rounded-full px-3 py-1"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  className="absolute -top-10 -right-10 w-40 h-40 bg-white/30 rounded-full blur-xl"
+                />
+                <motion.div
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                  className="absolute -bottom-10 -left-10 w-32 h-32 bg-white/20 rounded-full blur-xl"
+                />
+              </div>
+            )}
+
+            <div className="relative z-10">
+              {/* Header */}
+              <div className="flex items-start justify-between mb-6">
+                <motion.div
+                  whileHover={{ scale: 1.2, rotate: 10 }}
+                  className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
+                    isMain 
+                      ? 'bg-white/20 text-white' 
+                      : `bg-gradient-to-br ${gradient} text-white`
+                  } group-hover:shadow-lg transition-all duration-300`}
                 >
-                  <Star className="w-4 h-4 text-yellow-300 fill-current" />
-                  <span className="text-sm font-medium">Featured</span>
+                  <Icon className="w-8 h-8" />
                 </motion.div>
-              )}
-            </div>
-
-            {/* Content */}
-            <h3 className={`text-2xl font-bold mb-4 ${isMain ? 'text-white' : 'text-gray-800'}`}>
-              {title}
-            </h3>
-            
-            <p className={`text-lg leading-relaxed mb-6 ${isMain ? 'text-white/90' : 'text-gray-600'}`}>
-              {description}
-            </p>
-
-            {/* Features */}
-            <div className="space-y-3 mb-8">
-              {features.map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={isInView ? { opacity: 1, x: 0 } : {}}
-                  transition={{ duration: 0.5, delay: delay + 0.2 + index * 0.1 }}
-                  className="flex items-center space-x-3"
-                >
+                
+                {!thumbnail && !isMain && (
                   <motion.div
-                    whileHover={{ scale: 1.3, rotate: 90 }}
-                    className={`w-2 h-2 rounded-full ${
-                      isMain ? 'bg-white/70' : 'bg-gradient-to-r from-blue-500 to-cyan-400'
-                    }`}
-                  />
-                  <span className={`${isMain ? 'text-white/80' : 'text-gray-700'}`}>
-                    {feature}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
+                    initial={{ scale: 0 }}
+                    animate={isInView ? { scale: 1 } : {}}
+                    transition={{ duration: 0.5, delay: delay + 0.3 }}
+                    className="flex items-center space-x-1 bg-gradient-to-r from-gray-100 to-gray-50 rounded-full px-3 py-1"
+                  >
+                    <span className="text-sm font-medium text-gray-600">Experience</span>
+                  </motion.div>
+                )}
+              </div>
 
-            {/* CTA Button */}
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                className={`w-full ${
-                  isMain 
-                    ? 'bg-white/20 hover:bg-white/30 text-white border border-white/30' 
-                    : 'bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white border-0'
-                } rounded-xl py-6 text-lg font-semibold group transition-all duration-300`}
+              {/* Content */}
+              <h3 className={`text-2xl font-bold mb-4 ${isMain ? 'text-white' : 'text-gray-800'}`}>
+                {title}
+              </h3>
+              
+              <p className={`text-lg leading-relaxed mb-6 ${isMain ? 'text-white/90' : 'text-gray-600'}`}>
+                {description}
+              </p>
+
+              {/* Features */}
+              <div className="space-y-3 mb-8">
+                {features.map((feature, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={isInView ? { opacity: 1, x: 0 } : {}}
+                    transition={{ duration: 0.5, delay: delay + 0.2 + index * 0.1 }}
+                    className="flex items-center space-x-3"
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.3, rotate: 90 }}
+                      className={`w-2 h-2 rounded-full ${
+                        isMain ? 'bg-white/70' : 'bg-gradient-to-r from-blue-500 to-cyan-400'
+                      }`}
+                    />
+                    <span className={`${isMain ? 'text-white/80' : 'text-gray-700'}`}>
+                      {feature}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* CTA Button */}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                {isMain ? 'Play Now' : 'Explore'}
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </motion.div>
+                <Button
+                  onClick={handlePlayClick}
+                  className={`w-full ${
+                    isMain 
+                      ? 'bg-white/20 hover:bg-white/30 text-white border border-white/30' 
+                      : 'bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white border-0'
+                  } rounded-xl py-6 text-lg font-semibold group transition-all duration-300`}
+                >
+                  <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                  {isMain ? 'Play Now' : 'Explore'}
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </motion.div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -147,10 +205,10 @@ const ExperienceCard = ({
 };
 
 export default function ExperiencesSection() {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
 
-  const experiences = [
+  const experiences: ExperienceCardProps[] = [
     {
       icon: Building2,
       title: "Work At A Hotel Roleplay",
@@ -163,7 +221,9 @@ export default function ExperiencesSection() {
         "Guest satisfaction system"
       ],
       isMain: true,
-      gradient: "from-blue-600 to-cyan-500"
+      gradient: "from-blue-600 to-cyan-500",
+      thumbnail: "https://tr.rbxcdn.com/d4b7b6b2c6748d2d0e5c1b9e3f8f4f5f-420-420-420-420.jpg",
+      gameUrl: "https://www.roblox.com/games/4932429784/Work-at-a-Hotel-Roleplay"
     },
     {
       icon: Users,
@@ -175,7 +235,9 @@ export default function ExperiencesSection() {
         "Leadership opportunities",
         "Recognition programs"
       ],
-      gradient: "from-purple-500 to-pink-400"
+      gradient: "from-purple-500 to-pink-400",
+      thumbnail: "https://tr.rbxcdn.com/f3e4d5c6b7a8c9d0e1f2a3b4c5d6e7f8-420-420-420-420.jpg",
+      gameUrl: "https://www.roblox.com/games/5234567890/Wyatt-Hotels-Rank-Center"
     },
     {
       icon: GraduationCap,
@@ -187,7 +249,9 @@ export default function ExperiencesSection() {
         "Certification programs",
         "Mentorship opportunities"
       ],
-      gradient: "from-green-500 to-emerald-400"
+      gradient: "from-green-500 to-emerald-400",
+      thumbnail: "https://tr.rbxcdn.com/a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6-420-420-420-420.jpg",
+      gameUrl: "https://www.roblox.com/games/6345678901/Wyatt-Hotels-Training-Center"
     },
     {
       icon: ClipboardCheck,
@@ -199,7 +263,9 @@ export default function ExperiencesSection() {
         "Achievement tracking",
         "Competitive leaderboards"
       ],
-      gradient: "from-orange-500 to-red-400"
+      gradient: "from-orange-500 to-red-400",
+      thumbnail: "https://tr.rbxcdn.com/b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7-420-420-420-420.jpg",
+      gameUrl: "https://www.roblox.com/games/7456789012/Wyatt-Hotels-Quiz-Center"
     }
   ];
 
@@ -213,7 +279,7 @@ export default function ExperiencesSection() {
             rotate: [0, 180, 360],
             opacity: [0.2, 0.4, 0.2]
           }}
-          transition={{ duration: 15, repeat: Number.POSITIVE_INFINITY }}
+          transition={{ duration: 15, repeat: Infinity }}
           className="absolute top-20 right-20 w-64 h-64 bg-gradient-to-r from-blue-300 to-cyan-300 rounded-full blur-3xl"
         />
         <motion.div
@@ -222,7 +288,7 @@ export default function ExperiencesSection() {
             rotate: [360, 180, 0],
             opacity: [0.2, 0.5, 0.2]
           }}
-          transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY }}
+          transition={{ duration: 20, repeat: Infinity }}
           className="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-cyan-300 to-blue-300 rounded-full blur-3xl"
         />
       </div>
@@ -274,12 +340,12 @@ export default function ExperiencesSection() {
               <div className="absolute inset-0 opacity-20">
                 <motion.div
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 30, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                  transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
                   className="absolute -top-20 -right-20 w-80 h-80 bg-white/30 rounded-full blur-3xl"
                 />
                 <motion.div
                   animate={{ rotate: -360 }}
-                  transition={{ duration: 25, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                  transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
                   className="absolute -bottom-20 -left-20 w-60 h-60 bg-white/20 rounded-full blur-3xl"
                 />
               </div>
@@ -311,6 +377,7 @@ export default function ExperiencesSection() {
                   <Button
                     size="lg"
                     className="bg-white text-blue-600 hover:bg-gray-100 font-bold text-lg px-8 py-4 rounded-2xl"
+                    onClick={() => window.open('https://www.roblox.com/communities/4416916/Wyatt-Hotels', '_blank')}
                   >
                     Join Roblox Group
                     <ArrowRight className="ml-2 w-5 h-5" />
@@ -319,6 +386,7 @@ export default function ExperiencesSection() {
                     variant="outline"
                     size="lg"
                     className="border-white/50 text-white hover:bg-white/10 font-bold text-lg px-8 py-4 rounded-2xl"
+                    onClick={() => window.open('https://www.roblox.com/communities/4416916/Wyatt-Hotels#!/games', '_blank')}
                   >
                     View All Games
                   </Button>

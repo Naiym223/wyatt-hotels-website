@@ -11,10 +11,33 @@ import {
   Star,
   Crown,
   Zap,
-  Heart
+  Heart,
+  LucideIcon
 } from 'lucide-react';
 
-const FloatingIcon = ({ icon: Icon, delay = 0, position = { top: '20%', left: '20%' } }) => (
+// Type definitions
+interface FloatingIconProps {
+  icon: LucideIcon;
+  delay?: number;
+  position?: React.CSSProperties;
+}
+
+interface BenefitCardProps {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  delay?: number;
+}
+
+interface PulsingButtonProps {
+  children: React.ReactNode;
+  variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive';
+  className?: string;
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+  onClick?: () => void;
+}
+
+const FloatingIcon = ({ icon: Icon, delay = 0, position = { top: '20%', left: '20%' } }: FloatingIconProps) => (
   <motion.div
     className="absolute opacity-20"
     style={position}
@@ -25,7 +48,7 @@ const FloatingIcon = ({ icon: Icon, delay = 0, position = { top: '20%', left: '2
     }}
     transition={{
       duration: 6,
-      repeat: Number.POSITIVE_INFINITY,
+      repeat: Infinity,
       delay,
       ease: "easeInOut",
     }}
@@ -34,8 +57,8 @@ const FloatingIcon = ({ icon: Icon, delay = 0, position = { top: '20%', left: '2
   </motion.div>
 );
 
-const BenefitCard = ({ icon: Icon, title, description, delay = 0 }) => {
-  const ref = useRef(null);
+const BenefitCard = ({ icon: Icon, title, description, delay = 0 }: BenefitCardProps) => {
+  const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
@@ -68,7 +91,7 @@ const BenefitCard = ({ icon: Icon, title, description, delay = 0 }) => {
   );
 };
 
-const PulsingButton = ({ children, variant = "default", className = "", ...props }) => (
+const PulsingButton = ({ children, variant = "default", className = "", size = "default", onClick, ...props }: PulsingButtonProps) => (
   <motion.div
     whileHover={{ scale: 1.05 }}
     whileTap={{ scale: 0.95 }}
@@ -77,13 +100,15 @@ const PulsingButton = ({ children, variant = "default", className = "", ...props
     <Button
       className={`relative overflow-hidden ${className}`}
       variant={variant}
+      size={size}
+      onClick={onClick}
       {...props}
     >
       <motion.div
         className="absolute inset-0 bg-gradient-to-r from-blue-400 to-cyan-400 opacity-0 group-hover:opacity-20"
         initial={false}
         animate={{ scale: [1, 1.2, 1] }}
-        transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+        transition={{ duration: 2, repeat: Infinity }}
       />
       <span className="relative z-10">{children}</span>
     </Button>
@@ -91,10 +116,10 @@ const PulsingButton = ({ children, variant = "default", className = "", ...props
 );
 
 export default function JoinSection() {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
 
-  const benefits = [
+  const benefits: BenefitCardProps[] = [
     {
       icon: Crown,
       title: "VIP Treatment",
@@ -127,6 +152,19 @@ export default function JoinSection() {
     }
   ];
 
+  const handleJoinGroup = () => {
+    window.open('https://www.roblox.com/communities/4416916/Wyatt-Hotels', '_blank');
+  };
+
+  const handleJoinDiscord = () => {
+    // Replace with actual Discord invite link
+    window.open('https://discord.gg/wyatthotels', '_blank');
+  };
+
+  const handleStartJourney = () => {
+    window.open('https://www.roblox.com/games/4932429784/Work-at-a-Hotel-Roleplay', '_blank');
+  };
+
   return (
     <section className="py-24 bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 relative overflow-hidden">
       {/* Animated background */}
@@ -137,7 +175,7 @@ export default function JoinSection() {
             opacity: [0.1, 0.3, 0.1],
             rotate: [0, 180, 360]
           }}
-          transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY }}
+          transition={{ duration: 20, repeat: Infinity }}
           className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full blur-3xl"
         />
         <motion.div
@@ -146,7 +184,7 @@ export default function JoinSection() {
             opacity: [0.1, 0.4, 0.1],
             rotate: [360, 180, 0]
           }}
-          transition={{ duration: 25, repeat: Number.POSITIVE_INFINITY }}
+          transition={{ duration: 25, repeat: Infinity }}
           className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full blur-3xl"
         />
       </div>
@@ -189,6 +227,7 @@ export default function JoinSection() {
             <PulsingButton
               size="lg"
               className="bg-white text-blue-600 hover:bg-gray-100 font-bold text-xl px-12 py-6 rounded-2xl shadow-2xl group"
+              onClick={handleJoinGroup}
             >
               <Users className="mr-3 w-6 h-6 group-hover:scale-110 transition-transform" />
               Join Roblox Group
@@ -199,6 +238,7 @@ export default function JoinSection() {
               variant="outline"
               size="lg"
               className="border-white/50 text-white hover:bg-white/10 font-bold text-xl px-12 py-6 rounded-2xl backdrop-blur-md"
+              onClick={handleJoinDiscord}
             >
               <MessageCircle className="mr-3 w-6 h-6" />
               Discord Server
@@ -308,11 +348,12 @@ export default function JoinSection() {
                 <Button
                   size="lg"
                   className="bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white font-bold text-xl px-16 py-6 rounded-2xl shadow-2xl"
+                  onClick={handleStartJourney}
                 >
                   Start Your Journey
                   <motion.div
                     animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
                   >
                     <ArrowRight className="ml-3 w-6 h-6" />
                   </motion.div>

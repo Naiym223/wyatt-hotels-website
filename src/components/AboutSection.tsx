@@ -1,9 +1,16 @@
 'use client';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
-import { Crown, Hotel, Users, Star, Shield, Award } from 'lucide-react';
+import { Crown, Hotel, Users, Star, Shield, Award, LucideIcon } from 'lucide-react';
 
-const FeatureCard = ({ icon: Icon, title, description, delay = 0 }) => (
+interface FeatureCardProps {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  delay?: number;
+}
+
+const FeatureCard = ({ icon: Icon, title, description, delay = 0 }: FeatureCardProps) => (
   <motion.div
     initial={{ opacity: 0, y: 50 }}
     whileInView={{ opacity: 1, y: 0 }}
